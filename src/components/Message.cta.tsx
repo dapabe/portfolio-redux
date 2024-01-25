@@ -29,7 +29,7 @@ export const MessageCTA = () => {
 	const zo = useZorm("cta", schema, {
 		onValidSubmit: async (evt) => {
 			evt.preventDefault();
-			if (zo.validation?.success) submit(evt.data);
+			if (zo.validation?.success) await submit(evt.data);
 		},
 	});
 
