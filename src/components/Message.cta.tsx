@@ -46,10 +46,12 @@ export const MessageCTA = () => {
 				/>
 				<button
 					type="submit"
-					className={`${zo.errors.msg(
-						"border-red-600 hover:bg-white text-red-600 hover:text-red-600 active:bg-white peer-focus:border-red-600"
-					)} bg-white p-2 rounded-full text-gray-400 border border-gray-400 hover:text-white absolute -bottom-4 -right-4 hover:bg-teal-400 transition-colors hover:cursor-pointer
-        active:bg-teal-600 peer-focus:border-teal-600`}
+					className={`bg-white p-2 rounded-full hover:cursor-pointer absolute -bottom-4 -right-4 transition-colors border ${
+						zo.errors.msg(
+							"border-red-600 hover:bg-white text-red-600 hover:text-red-600 peer-focus:border-red-600 "
+						) ??
+						"text-gray-400 border-gray-400 hover:text-white hover:bg-teal-400 active:bg-teal-600 peer-focus:border-teal-600"
+					}`}
 				>
 					<EnvelopeIcon className="w-6" />
 				</button>
