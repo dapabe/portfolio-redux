@@ -4,12 +4,17 @@ import * as z from "zod";
 import { useFormspark } from "@formspark/use-formspark";
 import {
 	Button,
+	FieldError,
 	Form,
 	Label,
 	TextArea,
 	TextField,
 } from "react-aria-components";
-import { useZorm } from "react-zorm";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { getValidationErrors } from "$/common/helpers";
+import { useToggle } from "@uidotdev/usehooks";
+import { useEffect } from "react";
 
 const schema = z.object({
 	msg: z
@@ -26,42 +31,79 @@ export const MessageCTA = () => {
 		formId: process.env.NEXT_PUBLIC_FORMSPARK_ID!,
 	});
 
-	const zo = useZorm("cta", schema, {
-		onValidSubmit: async (evt) => {
-			evt.preventDefault();
-			if (zo.validation?.success) await submit(evt.data);
+	const {
+		register,
+		handleSubmit,
+		reset,
+		formState: { errors, isSubmitting, isValid },
+	} = useForm<typeof schema._type>({
+		defaultValues: {
+			msg: "",
 		},
+		resolver: zodResolver(schema),
 	});
 
+	const [showFeedback, toggleFeedback] = useToggle(false);
+
+	const onSubmit: SubmitHandler<typeof schema._type> = async (data) => {
+		// "use server";
+		toggleFeedback();
+		// await fetch(process.env.FORMSPARK_URL!, {
+		// 	method: "post",
+		// });
+		// console.log(data);
+		setTimeout(() => {
+			reset();
+			toggleFeedback();
+		}, 3000);
+	};
+
+	useEffect(() => {
+		let timeoutId: any;
+		if (showFeedback) {
+			timeoutId = setTimeout(() => {
+				toggleFeedback();
+			}, 3000);
+		}
+
+		return () => clearTimeout(timeoutId);
+	}, [showFeedback]);
+
+	const disabledField = isSubmitting || showFeedback;
+	console.log(errors);
 	return (
-		<Form ref={zo.ref}>
-			<TextField name={zo.fields.msg()} className={`form-control relative`}>
+		<Form
+			onSubmit={handleSubmit(onSubmit)}
+			validationErrors={getValidationErrors(errors)}
+		>
+			<TextField className={`form-control relative`}>
 				<Label
-					aria-describedby={zo.fields.msg("id")}
-					htmlFor={zo.fields.msg("id")}
-					className="absolute start-2.5 -top-3 p-0.5 text-sm text-neutral bg-white"
+					aria-describedby="msg"
+					htmlFor="msg"
+					className="absolute start-2.5 -top-3 p-0.5 text-sm text-neutral bg-white select-none"
 				>
 					Contactame
 					<ChatBubbleLeftIcon className="w-6 ml-1 inline" />
 				</Label>
 				<TextArea
-					className={`textarea resize-none ${
-						zo.errors.msg("textarea-error") ?? "textarea-info"
+					className={`textarea resize-none disabled:textarea-bordered disabled:border disabled:border-solid disabled:text-neutral/50 ${
+						errors.msg ? "textarea-error" : "textarea-info"
 					}`}
 					placeholder="ej: Hola Patricio, me comunico contigo para ... este es mi correo ejemplo@gmail.com"
+					{...register("msg", { required: true })}
+					disabled={disabledField}
 				/>
-
-				<div className="label relative">
-					{zo.errors.msg((e) => (
-						<span className="label-text-alt text-error text-sm absolute top-0.5">
-							{e.message}
-						</span>
-					))}
-				</div>
+				<FieldError className="label-text-alt text-error text-sm absolute top-full" />
+				{showFeedback && (
+					<span className="label-text-alt text-sm text-secondary absolute top-full left-1/2 -translate-x-1/2">
+						¡Mensaje enviado!
+					</span>
+				)}
 				<Button
 					type="submit"
-					className={`btn btn-circle absolute text-white bottom-0 -right-4 ${
-						zo.errors.msg("btn-error") ?? "btn-info"
+					isDisabled={disabledField || !isValid}
+					className={`btn btn-circle absolute text-white -bottom-6 -right-6 ${
+						isValid ? "btn-info" : "btn-disabled"
 					}`}
 				>
 					<EnvelopeIcon className="w-6" />
