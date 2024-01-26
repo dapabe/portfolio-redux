@@ -11,13 +11,13 @@
 	"dependencies": {
 		"@formspark/use-formspark": "^0.1.39",
 		"@heroicons/react": "^2.1.1",
-		"@hookform/resolvers": "^3.3.4",
 		"@uidotdev/usehooks": "2.4.1",
+		"formik": "^2.4.5",
+		"formik-validator-zod": "^2.0.0",
 		"next": "14.0.4",
 		"react": "18.2.0",
 		"react-aria-components": "^1.0.1",
 		"react-dom": "^18.2.0",
-		"react-hook-form": "^7.49.3",
 		"zod": "^3.22.4"
 	},
 	"devDependencies": {
